@@ -1,0 +1,100 @@
+# Canonical SPR protocol used by the verified submission rerun.
+#
+# This file records the fixed paper settings. Historical R1/LSTM/Optuna
+# configurations remain available in the frozen reproducibility snapshots and
+# are intentionally excluded from this active protocol.
+
+method:
+  name: SPR
+  expansion: Soft-Prior Regularization
+  task: business process remaining time prediction
+
+protocol:
+  id: r2_submission_evidence_z1_masked_v5_same_protocol
+  split: sorted_case_id_70_15_15
+  model_type: gru
+  seeds: [42, 123, 456, 789, 2024]
+  epochs: 50
+  patience: 10
+  batch_size: 256
+  embedding_dim: 50
+  n_layers: 2
+  task_loss: l1_normalized_remaining_time
+  optimizer: adam
+  warmup_epochs: 5
+  max_grad_norm: 1.0
+  monotonicity_pair_policy: terminal_prefix_masked_batch_mean
+  mono_p: 1
+  bound_p: 1
+  bound_z: 1.0
+  data_dir: data/processed
+
+input_features:
+  discrete:
+    - activity_prefix
+  continuous:
+    - elapsed_time_norm
+    - previous_inter_event_time_norm
+    - hour_sin
+    - hour_cos
+    - day_sin
+    - day_cos
+    - congestion_norm
+  excluded_future_feature:
+    - next_event_delta_t_norm
+  representation: current_prefix_vector_repeated_across_sequence_steps
+
+datasets:
+  bpic2012:
+    label: BPIC 2012
+    learning_rate: 0.00067
+    hidden_dim: 256
+    dropout: 0.48115
+    lambda_mono: 0.00799
+    lambda_bound: 0.04271
+  helpdesk:
+    label: Helpdesk
+    learning_rate: 0.00242
+    hidden_dim: 256
+    dropout: 0.36865
+    lambda_mono: 0.01765
+    lambda_bound: 0.02080
+  bpic2017:
+    label: BPIC 2017
+    learning_rate: 0.00060
+    hidden_dim: 100
+    dropout: 0.35000
+    lambda_mono: 0.00800
+    lambda_bound: 0.08000
+  sepsis_cases:
+    label: Sepsis Cases
+    learning_rate: 0.00010
+    hidden_dim: 256
+    dropout: 0.21688
+    lambda_mono: 0.00123
+    lambda_bound: 0.01581
+
+core_configurations:
+  base:
+    use_mono: false
+    use_bound: false
+    use_load: false
+  mono:
+    use_mono: true
+    use_bound: false
+    use_load: false
+  bound:
+    use_mono: false
+    use_bound: true
+    use_load: false
+  mono_bound:
+    use_mono: true
+    use_bound: true
+    use_load: false
+
+load_candidate:
+  status: implemented_examined_excluded_from_final_combination
+  datasets: [helpdesk, sepsis_cases]
+  lambda_load: 0.001
+  p: 1
+  minimum_pairs: 4
