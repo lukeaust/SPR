@@ -11,7 +11,7 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-The same interpreter runs SPR, the strong baselines, PGTNet, preprocessing, and analysis. The PGTNet source needed by the comparison is vendored under `src/spr/models/pgtnet/vendor/`; no second environment or source download is used.
+The same interpreter runs SPR, the strong baselines, PGTNet, preprocessing, and analysis. The PGTNet source needed by the comparison is vendored under `src/models/pgtnet/vendor/`; no second environment or source download is used.
 
 The aligned PGTNet comparison covers all four release datasets. BPIC 2012,
 Helpdesk, and Sepsis Cases use upstream-supported PGTNet dataset classes. BPIC
@@ -29,6 +29,13 @@ python main.py --gpus 0,1,2,3 --pgtnet-gpu 0
 
 This command downloads and verifies the public event logs, prepares every model input, runs the complete experiment matrix, records provenance, and finally generates all paper tables and figures. Existing runtime outputs are rejected by default. Use `--resume` only to continue an interrupted run.
 
+For a detached server run, let the Python entry point create the result tree and
+the main log instead of using shell redirection:
+
+```bash
+nohup /look/envs/spr-release/bin/python /look/SPR/main.py --gpus 0,1,2,3 --pgtnet-gpu 0 --reuse-downloads --log-file results/logs/reproduce.log >/dev/null 2>&1 &
+```
+
 Useful stages, all through the same public entry point:
 
 ```bash
@@ -43,13 +50,13 @@ python main.py smoke
 ```text
 config/                    fixed experiment and PGTNet configurations
 data/                      public-source manifests and generated datasets
-src/spr/models/            SPR, strong-baseline, and vendored PGTNet models
-src/spr/constraints/       differentiable constraint losses and diagnostics
-src/spr/data/              download and preprocessing implementations
-src/spr/training/          model training implementations
-src/spr/experiments/       experiment grids and workflow launchers
-src/spr/analysis/          result audits and paper-artifact generation
-src/spr/utils/             provenance utilities
+src/models/                SPR, strong-baseline, and vendored PGTNet models
+src/constraints/           differentiable constraint losses and diagnostics
+src/data/                  download and preprocessing implementations
+src/training/              model training implementations
+src/experiments/           experiment grids and workflow launchers
+src/analysis/              result audits and paper-artifact generation
+src/utils/                 provenance utilities
 scripts/analysis/main.py   standalone analysis wrapper
 results/artifacts/         raw predictions, checkpoints, ledgers, and provenance
 results/logs/              execution logs
